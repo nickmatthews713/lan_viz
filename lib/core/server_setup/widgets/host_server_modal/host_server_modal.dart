@@ -3,6 +3,7 @@ import 'package:lan_viz/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:lan_viz/shared/standard_input_field/standard_input_field.dart';
+import 'package:lanviz_server_repository/lanviz_server_repository.dart';
 
 import 'cubit/host_server_modal_cubit.dart';
 
@@ -94,7 +95,7 @@ class _ActionButtons extends StatelessWidget {
             return ElevatedButton(
               onPressed: state.serverName.invalid || state.serverName.pure
                 ? null
-                : () => {},
+                : () => context.read<LanvizServerRepository>().initializeServer(),
               child: const Text("Host Server"),
             );
           }

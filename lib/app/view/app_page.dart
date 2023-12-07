@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:lanviz_server_repository/lanviz_server_repository.dart';
+
 import 'app_view.dart';
 
 class App extends StatelessWidget {
@@ -8,6 +10,11 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AppView();
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<LanvizServerRepository>(create: (context) => LanvizServerRepository()),
+      ],
+      child: const AppView(),
+    );
   }
 }
