@@ -49,6 +49,10 @@ class LanvizServerRepository {
       // listen for connections
       _server!.listen((socket) {
         print("Client connected from ${socket.remoteAddress.address}:${socket.remotePort}");
+        // Send a message to all clients when a new client connects
+
+
+
         socket.listen(
           (Uint8List data) {
             print("Data received: ${String.fromCharCodes(data)} from ${socket.remoteAddress.address}:${socket.remotePort}");
