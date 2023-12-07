@@ -89,7 +89,7 @@ class _ActionButtons extends StatelessWidget {
           child: const Text("Cancel"),
         ),
         BlocBuilder<JoinServerModalCubit, JoinServerModalState>(
-            buildWhen: (previous, current) => previous.status != current.status,
+            buildWhen: (previous, current) => previous.serverName != current.serverName,
             builder: (context, state) {
               // if server name is pure or invalid, disable the button
               return ElevatedButton(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:lanviz_server_repository/lanviz_server_repository.dart';
+import 'package:lanviz_client_repository/lanviz_client_repository.dart';
 
 class ControlView extends StatelessWidget {
   const ControlView({super.key});
@@ -9,15 +9,29 @@ class ControlView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final lanvizServer = context.read<LanvizServerRepository>();
+    final lanvizClient = context.read<LanvizClientRepository>();
 
+    // text controller for the text field
+    final textController = TextEditingController();
+
+    // make a column with a text field and a button. on button push, the text field value is sent to the server
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
       children: [
-        Text("Control View"),
-        // Get my public IP address
-        Text("${lanvizServer.isRunning ? lanvizServer.ipAddress : "Not Running"}"),
+        TextField(
+          controller: textController,
+          decoration: const InputDecoration(
+            labelText: "Message",
+          ),
+          onSubmitted: (value) {
+            lanvizClient.sendData(value);
+          },
+        ),
+        ElevatedButton(
+          onPressed: () {
+            lanvizClient.sendData(textController.text);
+          },
+          child: const Text("Send Message"),
+        ),
       ],
     );
   }

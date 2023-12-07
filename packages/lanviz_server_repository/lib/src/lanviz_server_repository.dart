@@ -10,11 +10,9 @@ class LanvizServerException implements Exception {}
 /// Class that represents a server that is being hosted.
 class LanvizServerRepository {
   LanvizServerRepository({
-    ServerSocket? server,
     String? serverName,
-  }) : _server = server,
-      _serverName = serverName,
-      _isRunning = false;
+  }) : _serverName = serverName,
+       _isRunning = false;
 
   /// The server socket that is being hosted.
   ServerSocket? _server;
@@ -53,7 +51,7 @@ class LanvizServerRepository {
         print("Client connected from ${socket.remoteAddress.address}:${socket.remotePort}");
         socket.listen(
           (Uint8List data) {
-            print("Data received: ${String.fromCharCodes(data)}");
+            print("Data received: ${String.fromCharCodes(data)} from ${socket.remoteAddress.address}:${socket.remotePort}");
           },
 
           onError: (error) {
@@ -74,11 +72,11 @@ class LanvizServerRepository {
     }
   }
 
-  // return a stream of messages from the server
-  Stream<String> get messages {
-    return _server!.map((socket) {
-      print ("${socket.address.address} connected");
-      return "${socket.address.address} connected";
-    });
-  }
+  // on messages reveived from the client
+  Stream<dynamic> get stream => _server!.asBroadcastStream().map(
+    (event) {
+      print(event.toString());
+      return event.toString();
+    }
+  );
 }

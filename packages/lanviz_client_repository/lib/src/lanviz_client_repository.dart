@@ -1,4 +1,5 @@
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:io';
+import 'package:network_info_plus/network_info_plus.dart';
 
 /// Custom exception for when the client fails to connect.
 class LanvizClientException implements Exception {}
@@ -6,17 +7,18 @@ class LanvizClientException implements Exception {}
 /// Class that represents a client that is connected to a server.
 class LanvizClientRepository {
   LanvizClientRepository({
-    WebSocketChannel? client,
     String? clientName,
-  }) : _client = client,
-       _clientName = clientName,
+  }) : _clientName = clientName,
        _isConnected = false;
 
   /// The client socket that is connected to the server.
-  WebSocketChannel? _client;
+  Socket? _client;
 
   /// The name of the client.
   String? _clientName;
+
+  /// The IP address of the client.
+  String? _ipAddress;
 
   /// Whether the client is connected to the server or not. defaults to false.
   bool _isConnected;
@@ -24,19 +26,18 @@ class LanvizClientRepository {
   // getters and setters
   String? get clientName => _clientName;
   bool get isConnected => _isConnected;
+  String? get ipAddress => _ipAddress;
   set clientName(String? clientName) => _clientName = clientName;
-
-  /// Get the stream of data from the server.
-  Stream<dynamic> get stream => _client!.stream.map(
-    (event) => event.toString(),
-  );
 
   /// Connect to server
   Future<void> initializeClient({required String host, required int port}) async {
     try {
-      _client = WebSocketChannel.connect(
-          Uri.parse("ws://${host}:${port}")
-      );
+      _client = await Socket.connect(host, port);
+
+      final networkInfo = NetworkInfo();
+      // set _ipAddress as the public facing IP address of the client
+      _ipAddress = await networkInfo.getWifiIP();
+
       _isConnected = true;
     } catch (error) {
       print(error);
@@ -47,12 +48,12 @@ class LanvizClientRepository {
 
   /// Send data to the server.
   void sendData(String data) {
-    _client!.sink.add(data);
+    _client!.write(data);
   }
 
   /// Close the connection to the server.
   void closeConnection() {
     _isConnected = false;
-    _client!.sink.close();
+    _client!.destroy();
   }
 }
