@@ -3,6 +3,7 @@ import 'package:lan_viz/theme.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'package:lan_viz/core/server_setup/server_setup.dart';
+import 'package:lan_viz/core/control/control.dart';
 
 
 class AppView extends StatelessWidget {
@@ -36,6 +37,8 @@ class AppView extends StatelessWidget {
     switch (name) {
       case ServerSetupPage.name:
         return const ServerSetupPage();
+      case ControlPage.name:
+        return const ControlPage();
       default:
         return const SizedBox.shrink();
     }

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:lan_viz/app/app.dart';
+import 'package:lan_viz/app/bloc/lanviz_client/lanviz_client_bloc.dart';
+import 'package:lan_viz/core/control/control.dart';
 
 import 'server_setup_view.dart';
 
@@ -11,9 +16,35 @@ class ServerSetupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: ServerSetupView(),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<LanvizServerBloc, LanvizServerState>(
+              listener: (context, state) {
+                if(state is LanvizServerRunning) {
+                  // push control page without back button
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    ControlPage.name,
+                    (route) => false,
+                  );
+                }
+              },
+            ),
+            BlocListener<LanvizClientBloc, LanvizClientState>(
+              listener: (context, state) {
+                if(state is LanvizClientRunning) {
+                  // push control page without back button
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    ControlPage.name,
+                    (route) => false,
+                  );
+                }
+              }
+            ),
+          ],
+          child: const ServerSetupView(),
+        ),
       ),
     );
   }

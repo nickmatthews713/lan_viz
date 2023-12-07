@@ -16,8 +16,13 @@ class ServerName extends FormzInput<String, ServerNameValidationError> {
   /// {@macro ServerName}
   const ServerName.dirty([super.value = '']) : super.dirty();
 
+  // static final RegExp _serverNameRegExp = RegExp(
+  //   r'^[a-zA-Z0-9]+([_-]?[a-zA-Z0-9])*$',
+  // );
+
+  // regex for an IP address
   static final RegExp _serverNameRegExp = RegExp(
-    r'^[a-zA-Z0-9]+([_-]?[a-zA-Z0-9])*$',
+    r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$',
   );
 
   @override

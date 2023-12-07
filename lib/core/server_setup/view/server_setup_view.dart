@@ -45,7 +45,12 @@ class _ServerButtons extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => const JoinServerModal(),
+            );
+          },
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(60),
           ),

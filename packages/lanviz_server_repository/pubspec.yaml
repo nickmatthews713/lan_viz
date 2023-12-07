@@ -6,5 +6,4 @@ environment:
   sdk: '>=3.0.6 <4.0.0'
 
 dependencies:
-  web_socket_channel: ^2.4.0
-  universal_io: ^2.2.2
+  network_info_plus: ^4.1.0

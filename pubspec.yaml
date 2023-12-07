@@ -28,6 +28,8 @@ dependencies:
     path: packages/form_inputs
   lanviz_server_repository:
     path: packages/lanviz_server_repository
+  lanviz_client_repository:
+    path: packages/lanviz_client_repository
   flutter_bloc: ^8.1.3
   bloc: ^8.1.2
   equatable: ^2.0.5

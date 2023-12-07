@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:lan_viz/app/app.dart';
+import 'package:lan_viz/app/bloc/lanviz_client/lanviz_client_bloc.dart';
 import 'package:lan_viz/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:lan_viz/shared/standard_input_field/standard_input_field.dart';
 
-import 'cubit/host_server_modal_cubit.dart';
+import 'cubit/join_server_modal_cubit.dart';
 
-class HostServerModal extends StatelessWidget {
-  const HostServerModal({super.key});
+class JoinServerModal extends StatelessWidget {
+  const JoinServerModal({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
       child: BlocProvider(
-        create: (context) => HostServerModalCubit(),
+        create: (context) => JoinServerModalCubit(),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 400),
           child: Padding(
@@ -46,11 +46,11 @@ class _Header extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
-        "Host Server",
+        "Join Server",
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: secondary[2],
+          color: primary[4],
         ),
       ),
     );
@@ -62,12 +62,12 @@ class _ServerNameInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HostServerModalCubit, HostServerModalState>(
+    return BlocBuilder<JoinServerModalCubit, JoinServerModalState>(
       buildWhen: (previous, current) => previous.serverName != current.serverName,
       builder: (context, state) {
         return StandardInputField(
           placeholder: "Server Name",
-          onChanged: (value) => context.read<HostServerModalCubit>().serverNameChanged(value),
+          onChanged: (value) => context.read<JoinServerModalCubit>().serverNameChanged(value),
           isInputValid: !state.serverName.invalid,
           fontSize: 20,
         );
@@ -88,20 +88,20 @@ class _ActionButtons extends StatelessWidget {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
-        BlocBuilder<HostServerModalCubit, HostServerModalState>(
-          buildWhen: (previous, current) => previous.status != current.status,
-          builder: (context, state) {
-            // if server name is pure or invalid, disable the button
-            return ElevatedButton(
-              onPressed: state.serverName.invalid || state.serverName.pure
-                ? null
-                : () {
-                Navigator.of(context).pop();
-                context.read<LanvizServerBloc>().add(HostServerClicked());
-            },
-              child: const Text("Host Server"),
-            );
-          }
+        BlocBuilder<JoinServerModalCubit, JoinServerModalState>(
+            buildWhen: (previous, current) => previous.status != current.status,
+            builder: (context, state) {
+              // if server name is pure or invalid, disable the button
+              return ElevatedButton(
+                onPressed: state.serverName.invalid || state.serverName.pure
+                    ? null
+                    : () {
+                  Navigator.of(context).pop();
+                  context.read<LanvizClientBloc>().add(JoinServerClicked(host: state.serverName.value, port: 8080));
+                },
+                child: const Text("Join Server"),
+              );
+            }
         ),
       ],
     );
