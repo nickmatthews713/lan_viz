@@ -4,6 +4,9 @@ import 'dart:typed_data';
 
 import 'package:network_info_plus/network_info_plus.dart';
 
+import 'models/client_connection.dart';
+import 'models/all_connections_response.dart';
+
 /// Custom exception for when the server fails to start.
 class LanvizServerException implements Exception {}
 
@@ -32,6 +35,9 @@ class LanvizServerRepository {
   String? get ipAddress => _ipAddress;
   set serverName(String? serverName) => _serverName = serverName;
 
+  // get a list of all the sockets connected to the server
+  Future<Socket> get firstSocket => _server!.first;
+
   /// Bind the server to a port and listen for connections.
   Future<void> initializeServer() async {
     try {
@@ -49,6 +55,7 @@ class LanvizServerRepository {
       // listen for connections
       _server!.listen((socket) {
         print("Client connected from ${socket.remoteAddress.address}:${socket.remotePort}");
+
         socket.listen(
           (Uint8List data) {
             print("Data received: ${String.fromCharCodes(data)} from ${socket.remoteAddress.address}:${socket.remotePort}");

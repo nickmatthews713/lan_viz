@@ -8,4 +8,4 @@ environment:
 dependencies:
   web_socket_channel: ^2.4.0
   network_info_plus: ^4.1.0
-
+  json_serializable: ^6.7.1
