@@ -32,7 +32,6 @@ class LanvizConnectionsCubit extends Cubit<LanvizConnectionsState> {
   @override
   Future<void> close() {
     _allConnectionsStreamSubscription.cancel();
-    lanvizClientRepository.allConnectionsStream.drain();
     return super.close();
   }
 }

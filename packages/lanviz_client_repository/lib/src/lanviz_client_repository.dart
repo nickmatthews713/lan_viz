@@ -60,17 +60,12 @@ class LanvizClientRepository {
 
         onError: (error) {
           print(error);
-          _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
-          _client!.destroy();
-          _isConnected = false;
+          closeConnection();
           throw LanvizClientException();
         },
 
         onDone: () {
-          print("Client disconnected");
-          _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
-          _client!.destroy();
-          _isConnected = false;
+          closeConnection();
         },
       );
 
@@ -119,6 +114,9 @@ class LanvizClientRepository {
   /// Close the connection to the server.
   void closeConnection() {
     _isConnected = false;
+    _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
     _client!.destroy();
+    _allConnectionsStreamController.close();
+    _connectionStatusStreamController.close();
   }
 }
