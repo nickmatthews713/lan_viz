@@ -20,21 +20,19 @@ class LanvizConnectionsCubit extends Cubit<LanvizConnectionsState> {
   late final StreamSubscription<Map<String, dynamic>> _allConnectionsStreamSubscription;
 
   void handleMessage(Map<String, dynamic> json) {
-    final id = json["id"];
-    if(id == "all_connections") {
-      final allConnectionsResponse = AllConnectionsResponse.fromJson(json);
-      final connections = allConnectionsResponse.connections;
-      emit(
-        state.copyWith(
-          connections: connections,
-        ),
-      );
-    }
+    final allConnectionsResponse = AllConnectionsResponse.fromJson(json);
+    final connections = allConnectionsResponse.connections;
+    emit(
+      state.copyWith(
+        connections: connections,
+      ),
+    );
   }
 
   @override
   Future<void> close() {
     _allConnectionsStreamSubscription.cancel();
+    lanvizClientRepository.allConnectionsStream.drain();
     return super.close();
   }
 }
