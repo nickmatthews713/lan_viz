@@ -19,5 +19,5 @@ Map<String, dynamic> _$AllConnectionsResponseToJson(
         AllConnectionsResponse instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'connections': instance.connections,
+      'connections': instance.connections.map((e) => e.toJson()).toList(),
     };

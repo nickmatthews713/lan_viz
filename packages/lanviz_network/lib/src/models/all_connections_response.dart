@@ -8,7 +8,7 @@ import 'client_connection.dart';
 
 part 'all_connections_response.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class AllConnectionsResponse {
   /// {@macro all_connections_response}
   const AllConnectionsResponse({

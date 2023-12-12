@@ -10,7 +10,7 @@ ClientConnection _$ClientConnectionFromJson(Map<String, dynamic> json) =>
     ClientConnection(
       name: json['name'] as String,
       ip: json['ip'] as String,
-      port: json['port'] as int,
+      port: json['port'] as String,
     );
 
 Map<String, dynamic> _$ClientConnectionToJson(ClientConnection instance) =>

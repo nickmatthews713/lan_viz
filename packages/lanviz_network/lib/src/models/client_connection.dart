@@ -6,7 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'client_connection.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ClientConnection {
   /// {@macro client_connection}
   const ClientConnection({
@@ -22,11 +22,16 @@ class ClientConnection {
   final String ip;
 
   /// The port of the connection.
-  final int port;
+  final String port;
 
   /// Converts a [Map<String, dynamic>] into a [ClientConnection] instance.
   factory ClientConnection.fromJson(Map<String, dynamic> json) => _$ClientConnectionFromJson(json);
 
   /// Converts a [ClientConnection] instance into a [Map<String, dynamic>].
   Map<String, dynamic> toJson() => _$ClientConnectionToJson(this);
+
+  @override
+  String toString() {
+    return 'ClientConn(name: $name, ip: $ip, port: $port)';
+  }
 }
