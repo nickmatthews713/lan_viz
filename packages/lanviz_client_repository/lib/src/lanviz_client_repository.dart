@@ -64,6 +64,7 @@ class LanvizClientRepository {
       _client!.listen(
         (Uint8List data) {
           final jsonRaw = String.fromCharCodes(data);
+          print(jsonRaw);
           final jsonString = _convertToJsonStringQuotes(raw: jsonRaw);
           Map<String, dynamic> jsonMap = json.decode(jsonString);
           _handleData(jsonMap);
