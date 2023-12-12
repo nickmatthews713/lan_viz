@@ -1,21 +1,26 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:convert';
 import 'package:network_info_plus/network_info_plus.dart';
 
 /// Custom exception for when the client fails to connect.
 class LanvizClientException implements Exception {}
 
+/// States of the client connection.
+enum ClientConnectionStatus {
+  connected,
+  disconnected,
+}
+
 /// Class that represents a client that is connected to a server.
 class LanvizClientRepository {
   LanvizClientRepository({
     String? clientName,
-  }) : _clientName = clientName,
-       _isConnected = false;
+  }) : _isConnected = false;
 
   /// The client socket that is connected to the server.
   Socket? _client;
-
-  /// The name of the client.
-  String? _clientName;
 
   /// The IP address of the client.
   String? _ipAddress;
@@ -23,11 +28,17 @@ class LanvizClientRepository {
   /// Whether the client is connected to the server or not. defaults to false.
   bool _isConnected;
 
+  /// stream controller for the messages received from the server
+  final StreamController<Map<String, dynamic>> _messageStreamController = StreamController<Map<String, dynamic>>();
+
+  /// stream controller for the state of the client connection
+  final StreamController<ClientConnectionStatus> _connectionStreamController = StreamController<ClientConnectionStatus>();
+
   // getters and setters
-  String? get clientName => _clientName;
   bool get isConnected => _isConnected;
   String? get ipAddress => _ipAddress;
-  set clientName(String? clientName) => _clientName = clientName;
+  Stream<Map<String, dynamic>> get messageStream => _messageStreamController.stream;
+  Stream<ClientConnectionStatus> get connectionStream => _connectionStreamController.stream;
 
   /// Connect to server
   Future<void> initializeClient({required String host, required int port}) async {
@@ -37,13 +48,60 @@ class LanvizClientRepository {
       final networkInfo = NetworkInfo();
       // set _ipAddress as the public facing IP address of the client
       _ipAddress = await networkInfo.getWifiIP();
+      print("Client connected to $host:$port");
 
+      _client!.listen(
+        (Uint8List data) {
+          print(String.fromCharCodes(data));
+          final jsonRaw = String.fromCharCodes(data);
+          final jsonString = _convertToJsonStringQuotes(raw: jsonRaw);
+          Map<String, dynamic> jsonMap = json.decode(jsonString);
+          _messageStreamController.add(jsonMap);
+        },
+
+        onError: (error) {
+          print(error);
+          _connectionStreamController.add(ClientConnectionStatus.disconnected);
+          _client!.destroy();
+          _isConnected = false;
+          throw LanvizClientException();
+        },
+
+        onDone: () {
+          print("Client disconnected");
+          _connectionStreamController.add(ClientConnectionStatus.disconnected);
+          _client!.destroy();
+          _isConnected = false;
+        },
+      );
+
+      _connectionStreamController.add(ClientConnectionStatus.connected);
       _isConnected = true;
     } catch (error) {
       print(error);
       _isConnected = false;
       throw LanvizClientException();
     }
+  }
+
+  String _convertToJsonStringQuotes({required String raw}) {
+    String jsonString = raw;
+
+    /// add quotes to json string
+    jsonString = jsonString.replaceAll('{', '{"');
+    jsonString = jsonString.replaceAll(': ', '": "');
+    jsonString = jsonString.replaceAll(', ', '", "');
+    jsonString = jsonString.replaceAll('}', '"}');
+
+    /// remove quotes on object json string
+    jsonString = jsonString.replaceAll('"{"', '{"');
+    jsonString = jsonString.replaceAll('"}"', '"}');
+
+    /// remove quotes on array json string
+    jsonString = jsonString.replaceAll('"[{', '[{');
+    jsonString = jsonString.replaceAll('}]"', '}]');
+
+    return jsonString;
   }
 
   /// Send data to the server.

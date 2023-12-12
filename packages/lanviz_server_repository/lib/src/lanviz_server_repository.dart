@@ -4,8 +4,7 @@ import 'dart:typed_data';
 
 import 'package:network_info_plus/network_info_plus.dart';
 
-import 'models/client_connection.dart';
-import 'models/all_connections_response.dart';
+import 'package:lanviz_network/lanviz_network.dart';
 
 /// Custom exception for when the server fails to start.
 class LanvizServerException implements Exception {}
@@ -14,14 +13,10 @@ class LanvizServerException implements Exception {}
 class LanvizServerRepository {
   LanvizServerRepository({
     String? serverName,
-  }) : _serverName = serverName,
-       _isRunning = false;
+  }) : _isRunning = false;
 
   /// The server socket that is being hosted.
   ServerSocket? _server;
-
-  /// The name of the server.
-  String? _serverName;
 
   /// The IP address of the server.
   String? _ipAddress;
@@ -29,14 +24,12 @@ class LanvizServerRepository {
   /// Whether the server is running or not. defaults to false.
   bool _isRunning;
 
+  /// List of all the connections to the server.
+  List<Socket> _sockets = [];
+
   // getters and setters
-  String? get serverName => _serverName;
   bool get isRunning => _isRunning;
   String? get ipAddress => _ipAddress;
-  set serverName(String? serverName) => _serverName = serverName;
-
-  // get a list of all the sockets connected to the server
-  Future<Socket> get firstSocket => _server!.first;
 
   /// Bind the server to a port and listen for connections.
   Future<void> initializeServer() async {
@@ -55,6 +48,8 @@ class LanvizServerRepository {
       // listen for connections
       _server!.listen((socket) {
         print("Client connected from ${socket.remoteAddress.address}:${socket.remotePort}");
+        _sockets.add(socket);
+        broadcastAllConnections();
 
         socket.listen(
           (Uint8List data) {
@@ -62,12 +57,16 @@ class LanvizServerRepository {
           },
 
           onError: (error) {
+            _sockets.remove(socket);
+            broadcastAllConnections();
             print(error);
             socket.close();
           },
 
           onDone: () {
             print("Client disconnected");
+            _sockets.remove(socket);
+            broadcastAllConnections();
             socket.close();
           }
         );
@@ -77,6 +76,23 @@ class LanvizServerRepository {
       print(e);
       throw LanvizServerException();
     }
+  }
+
+  /// Broadcast an AllConnectionsResponse to all the clients.
+  void broadcastAllConnections() {
+    final allConnectionsResponse = AllConnectionsResponse(
+      connections: _sockets.map(
+        (socket) => ClientConnection(
+          name: _ipAddress!,
+          ip: socket.remoteAddress.address,
+          port: socket.remotePort.toString(),
+        )
+      ).toList(),
+    );
+
+    _sockets.forEach((socket) {
+      socket.write(allConnectionsResponse.toJson());
+    });
   }
 
   // on messages reveived from the client

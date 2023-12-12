@@ -74,7 +74,7 @@ packages:
     source: hosted
     version: "2.4.1"
   build_runner:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: build_runner
       sha256: "67d591d602906ef9201caf93452495ad1812bea2074f04e25dbd7c133785821b"
@@ -268,13 +268,20 @@ packages:
     source: hosted
     version: "4.8.1"
   json_serializable:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: json_serializable
       sha256: aa1f5a8912615733e0fdc7a02af03308933c93235bdc8d50d0b0c8a8ccb0b969
       url: "https://pub.dev"
     source: hosted
     version: "6.7.1"
+  lanviz_network:
+    dependency: "direct main"
+    description:
+      path: "../lanviz_network"
+      relative: true
+    source: path
+    version: "1.0.0"
   logging:
     dependency: transitive
     description:

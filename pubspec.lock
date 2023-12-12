@@ -358,6 +358,13 @@ packages:
       relative: true
     source: path
     version: "1.0.0"
+  lanviz_network:
+    dependency: "direct main"
+    description:
+      path: "packages/lanviz_network"
+      relative: true
+    source: path
+    version: "1.0.0"
   lanviz_server_repository:
     dependency: "direct main"
     description:

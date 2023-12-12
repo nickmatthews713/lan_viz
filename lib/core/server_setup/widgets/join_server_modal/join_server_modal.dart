@@ -19,17 +19,16 @@ class JoinServerModal extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 400),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _Header(),
-                Divider(color: neutral[1]),
-                const SizedBox(height: 8.0),
-                const _ServerNameInput(),
-                const SizedBox(height: 8.0),
-                const _ActionButtons(),
-              ],
+            child: BlocBuilder<LanvizClientBloc, LanvizClientState>(
+              builder: (context, state) {
+                if(state is LanvizClientConnecting) {
+                  return const _LoadingInfo(title: "Connecting to Server...");
+                } else if(state is LanvizClientConnected) {
+                  return const _LoadingInfo(title: "Connected to Server!");
+                } else {
+                  return const _JoinServerForm();
+                }
+              }
             ),
           ),
         ),
@@ -37,6 +36,27 @@ class JoinServerModal extends StatelessWidget {
     );
   }
 }
+
+class _JoinServerForm extends StatelessWidget {
+  const _JoinServerForm();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const _Header(),
+        Divider(color: neutral[1]),
+        const SizedBox(height: 8.0),
+        const _ServerNameInput(),
+        const SizedBox(height: 8.0),
+        const _ActionButtons(),
+      ],
+    );
+  }
+}
+
 
 class _Header extends StatelessWidget {
   const _Header();
@@ -96,13 +116,40 @@ class _ActionButtons extends StatelessWidget {
                 onPressed: state.serverName.invalid || state.serverName.pure
                     ? null
                     : () {
-                  Navigator.of(context).pop();
                   context.read<LanvizClientBloc>().add(JoinServerClicked(host: state.serverName.value, port: 8080));
                 },
                 child: const Text("Join Server"),
               );
             }
         ),
+      ],
+    );
+  }
+}
+
+class _LoadingInfo extends StatelessWidget {
+  const _LoadingInfo({
+    required this.title,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    // column of title a loading indicator
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            color: primary[4],
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        const CircularProgressIndicator(),
       ],
     );
   }
