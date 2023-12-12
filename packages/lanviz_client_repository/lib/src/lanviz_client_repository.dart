@@ -65,6 +65,7 @@ class LanvizClientRepository {
         },
 
         onDone: () {
+          print("Server disconnected");
           closeConnection();
         },
       );
