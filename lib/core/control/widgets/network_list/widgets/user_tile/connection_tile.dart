@@ -16,7 +16,6 @@ class ConnectionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ClientConnection me = context.read<LanvizClientRepository>().myClientConnection;
     return BlocProvider(
       create: (context) => PacketDeliveryBloc(
         lanvizClientRepository: context.read<LanvizClientRepository>(),
@@ -45,11 +44,13 @@ class _TileTrailing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ClientConnection me = context.read<LanvizClientRepository>().myClientConnection;
+    print("me: ${me.ip}, receiver: ${receiver.ip}");
     return BlocBuilder<PacketDeliveryBloc, PacketDeliveryState>(
       builder: (context, state) {
         if (state is PacketSteady) {
           return ElevatedButton(
-            onPressed: receiver.ip == "127.0.0.1" ? null : () {
+            onPressed: receiver.ip == me.ip ? null : () {
               context.read<PacketDeliveryBloc>().add(
                 SendPacket(
                   sender: context.read<LanvizClientRepository>().myClientConnection,

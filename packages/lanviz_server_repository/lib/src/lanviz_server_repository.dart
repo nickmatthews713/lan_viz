@@ -83,10 +83,9 @@ class LanvizServerRepository {
   void _handleClientConnect(Socket socket) {
     _sockets.add(socket);
     _clientConnections.add(ClientConnection(
-      ip: socket.remoteAddress.address,
+      ip: socket.remoteAddress.address == "127.0.0.1" ? myIpAddress! : socket.remoteAddress.address,
       port: socket.remotePort.toString(),
     ));
-    broadcastAllConnections();
   }
 
   void _handleClientDisconnect(Socket socket) {
@@ -101,13 +100,10 @@ class LanvizServerRepository {
     if(id == "client_update") {
       print("client_update received");
       final clientUpdateRequest = ClientUpdateRequest.fromJson(json);
-      if(clientUpdateRequest.ip == myIpAddress) {
-        _clientConnections.firstWhere((clientConnection) => clientConnection.ip == "127.0.0.1").name = clientUpdateRequest.name;
-      } else {
-        // client to update is not localhost. Find the client with the matching ip and port
-        final clientToUpdate = _clientConnections.firstWhere((clientConnection) => clientConnection.ip == clientUpdateRequest.ip && clientConnection.port == clientUpdateRequest.port);
-        clientToUpdate.name = clientUpdateRequest.name;
-      }
+
+      final clientToChange = _clientConnections.firstWhere((clientConnection) => clientConnection.ip == clientUpdateRequest.ip && clientConnection.port == clientUpdateRequest.port);
+      clientToChange.name = clientUpdateRequest.name;
+
       broadcastAllConnections();
     }
   }

@@ -101,8 +101,8 @@ class LanvizClientRepository {
   void sendClientUpdateRequest({String? name}) {
     _myClientConnection!.name = name;
     final clientUpdateRequest = ClientUpdateRequest(
-      ip: myIpAddress!,
-      port: myPort!,
+      ip: _myClientConnection!.ip,
+      port: _myClientConnection!.port,
       name: name,
     );
 
