@@ -31,6 +31,7 @@ class LanvizClientBloc extends Bloc<LanvizClientEvent, LanvizClientState> {
     await Future.delayed(const Duration(seconds: 2));
     try {
       await _lanvizClientRepository.initializeClient(host: event.host, port: event.port);
+      _lanvizClientRepository.sendClientUpdateRequest(name: event.name);
       emit(LanvizClientConnected());
     } catch (e) {
       emit(LanvizClientConnectionError(message: e.toString()));

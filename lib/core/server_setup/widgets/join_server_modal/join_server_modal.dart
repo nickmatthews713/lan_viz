@@ -116,7 +116,7 @@ class _ActionButtons extends StatelessWidget {
                 onPressed: state.serverName.invalid || state.serverName.pure
                     ? null
                     : () {
-                  context.read<LanvizClientBloc>().add(JoinServerClicked(host: state.serverName.value, port: 8080));
+                  context.read<LanvizClientBloc>().add(JoinServerClicked(name: "Bob", host: state.serverName.value, port: 8080));
                 },
                 child: const Text("Join Server"),
               );

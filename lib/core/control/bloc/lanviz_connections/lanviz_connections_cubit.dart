@@ -22,9 +22,15 @@ class LanvizConnectionsCubit extends Cubit<LanvizConnectionsState> {
   void handleMessage(Map<String, dynamic> json) {
     final allConnectionsResponse = AllConnectionsResponse.fromJson(json);
     final connections = allConnectionsResponse.connections;
+
+    // make a copy of the connections list
+    final connectionsCopy = List<ClientConnection>.from(connections);
+
+    final newStateChanger = DateTime.now().millisecondsSinceEpoch;
     emit(
       state.copyWith(
-        connections: connections,
+        connections: connectionsCopy,
+        stateChanger: newStateChanger,
       ),
     );
   }

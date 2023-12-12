@@ -9,14 +9,13 @@ part 'client_connection.g.dart';
 @JsonSerializable(explicitToJson: true)
 class ClientConnection {
   /// {@macro client_connection}
-  const ClientConnection({
-    required this.name,
+  ClientConnection({
     required this.ip,
     required this.port,
   });
 
   /// The name of the connection.
-  final String name;
+  String? name;
 
   /// The ip of the connection.
   final String ip;

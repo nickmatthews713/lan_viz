@@ -6,6 +6,8 @@ environment:
   sdk: ^3.0.6
 
 dependencies:
+  lanviz_network:
+    path: ../lanviz_network
   web_socket_channel: ^2.4.0
   network_info_plus: ^4.1.0
   json_serializable: ^6.7.1

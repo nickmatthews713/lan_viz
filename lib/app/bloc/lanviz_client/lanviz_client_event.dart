@@ -8,7 +8,10 @@ abstract class LanvizClientEvent extends Equatable {
 }
 
 class JoinServerClicked extends LanvizClientEvent {
-  const JoinServerClicked({required this.host, required this.port});
+  const JoinServerClicked({required this.name, required this.host, required this.port});
+
+  // custom name of the client
+  final String name;
 
   // IP address of the server to connect to
   final String host;
@@ -17,7 +20,7 @@ class JoinServerClicked extends LanvizClientEvent {
   final int port;
 
   @override
-  List<Object> get props => [host, port];
+  List<Object> get props => [name, host, port];
 }
 
 class ServerDisconnected extends LanvizClientEvent {}

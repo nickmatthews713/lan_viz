@@ -32,7 +32,7 @@ class ControlPage extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
               child: Text(
-                "${lanvizServer.isRunning ? lanvizServer.ipAddress : lanvizClient.ipAddress}",
+                "${lanvizServer.isRunning ? lanvizServer.myIpAddress : lanvizClient.myIpAddress}",
                 style: const TextStyle(fontSize: 20),
               ),
             ),

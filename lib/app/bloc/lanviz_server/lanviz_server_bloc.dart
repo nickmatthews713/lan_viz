@@ -28,7 +28,7 @@ class LanvizServerBloc extends Bloc<LanvizServerEvent, LanvizServerState> {
     try {
       await _lanvizServerRepository.initializeServer();
       emit(LanvizServerRunning());
-      _lanvizClientBloc.add(const JoinServerClicked(host: "127.0.0.1", port: 8080));
+      _lanvizClientBloc.add(const JoinServerClicked(name: "Beans", host: "127.0.0.1", port: 8080));
     } catch (e) {
       emit(LanvizServerError(message: e.toString()));
     }

@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'package:network_info_plus/network_info_plus.dart';
 
+import 'package:lanviz_network/lanviz_network.dart';
+
 /// Custom exception for when the client fails to connect.
 class LanvizClientException implements Exception {}
 
@@ -28,6 +30,9 @@ class LanvizClientRepository {
   /// Whether the client is connected to the server or not. defaults to false.
   bool _isConnected;
 
+  /// Client connection to the server.
+  ClientConnection? _myClientConnection;
+
   /// stream controller for the messages received from the server
   late StreamController<Map<String, dynamic>> _allConnectionsStreamController;
 
@@ -36,7 +41,9 @@ class LanvizClientRepository {
 
   // getters and setters
   bool get isConnected => _isConnected;
-  String? get ipAddress => _ipAddress;
+  String? get myIpAddress => _ipAddress;
+  String? get myPort => _client!.port.toString();
+  ClientConnection get myClientConnection => ClientConnection(ip: myIpAddress!, port: myPort!);
   StreamController<Map<String, dynamic>> get allConnections => _allConnectionsStreamController;
   StreamController<ClientConnectionStatus> get connectionStatus => _connectionStatusStreamController;
 
@@ -50,14 +57,16 @@ class LanvizClientRepository {
       final networkInfo = NetworkInfo();
       // set _ipAddress as the public facing IP address of the client
       _ipAddress = await networkInfo.getWifiIP();
-      print("Client connected to $host:$port");
+
+      // Instantiate _myClientConnection
+      _myClientConnection = ClientConnection(ip: myIpAddress!, port: myPort!);
 
       _client!.listen(
         (Uint8List data) {
           final jsonRaw = String.fromCharCodes(data);
           final jsonString = _convertToJsonStringQuotes(raw: jsonRaw);
           Map<String, dynamic> jsonMap = json.decode(jsonString);
-          handleData(jsonMap);
+          _handleData(jsonMap);
         },
 
         onError: (error) {
@@ -67,7 +76,6 @@ class LanvizClientRepository {
         },
 
         onDone: () {
-          print("Server disconnected");
           closeConnection();
         },
       );
@@ -81,12 +89,34 @@ class LanvizClientRepository {
     }
   }
 
-  void handleData(Map<String, dynamic> json) {
+  void _handleData(Map<String, dynamic> json) {
     final id = json["id"];
 
     if(id == "all_connections") {
       _allConnectionsStreamController.add(json);
     }
+  }
+
+  void sendClientUpdateRequest({String? name}) {
+    _myClientConnection!.name = name;
+    final clientUpdateRequest = ClientUpdateRequest(
+      ip: myIpAddress!,
+      port: myPort!,
+      name: name,
+    );
+
+    final jsonString = clientUpdateRequest.toJson();
+    _client!.write(jsonString);
+  }
+
+  void sendPacketDirectiveRequest({required ClientConnection sender, required ClientConnection receiver}) {
+    final packetDirectiveRequest = PacketDirectiveRequest(
+      sender: sender,
+      receiver: receiver,
+    );
+
+    final jsonString = packetDirectiveRequest.toJson();
+    _client!.write(jsonString);
   }
 
   String _convertToJsonStringQuotes({required String raw}) {
@@ -107,11 +137,6 @@ class LanvizClientRepository {
     jsonString = jsonString.replaceAll('}]"', '}]');
 
     return jsonString;
-  }
-
-  /// Send data to the server.
-  void sendData(String data) {
-    _client!.write(data);
   }
 
   /// Close the connection to the server.

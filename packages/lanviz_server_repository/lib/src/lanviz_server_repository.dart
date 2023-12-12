@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:lanviz_network/lanviz_network.dart';
@@ -24,12 +24,16 @@ class LanvizServerRepository {
   /// Whether the server is running or not. defaults to false.
   bool _isRunning;
 
-  /// List of all the connections to the server.
+  /// List of all the sockets to the server.
   List<Socket> _sockets = [];
+
+  /// List of all the client connections to the server. Holds the extra information of the client.
+  List<ClientConnection> _clientConnections = [];
 
   // getters and setters
   bool get isRunning => _isRunning;
-  String? get ipAddress => _ipAddress;
+  String? get myIpAddress => _ipAddress;
+  String? get myPort => _server!.port.toString();
 
   /// Bind the server to a port and listen for connections.
   Future<void> initializeServer() async {
@@ -47,26 +51,24 @@ class LanvizServerRepository {
       _isRunning = true;
       // listen for connections
       _server!.listen((socket) {
-        print("Client connected from ${socket.remoteAddress.address}:${socket.remotePort}");
-        _sockets.add(socket);
-        broadcastAllConnections();
+        _handleClientConnect(socket);
 
         socket.listen(
           (Uint8List data) {
-            print("Data received: ${String.fromCharCodes(data)} from ${socket.remoteAddress.address}:${socket.remotePort}");
+            final jsonRaw = String.fromCharCodes(data);
+            final jsonString = _convertToJsonStringQuotes(raw: jsonRaw);
+            Map<String, dynamic> jsonMap = json.decode(jsonString);
+            _handleData(jsonMap);
           },
 
           onError: (error) {
-            _sockets.remove(socket);
-            broadcastAllConnections();
+            _handleClientDisconnect(socket);
             print(error);
             socket.close();
           },
 
           onDone: () {
-            print("Client disconnected");
-            _sockets.remove(socket);
-            broadcastAllConnections();
+            _handleClientDisconnect(socket);
             socket.close();
           }
         );
@@ -78,28 +80,68 @@ class LanvizServerRepository {
     }
   }
 
+  void _handleClientConnect(Socket socket) {
+    _sockets.add(socket);
+    _clientConnections.add(ClientConnection(
+      ip: socket.remoteAddress.address,
+      port: socket.remotePort.toString(),
+    ));
+    broadcastAllConnections();
+  }
+
+  void _handleClientDisconnect(Socket socket) {
+    _sockets.remove(socket);
+    _clientConnections.removeWhere((clientConnection) => clientConnection.ip == socket.remoteAddress.address && clientConnection.port == socket.remotePort.toString());
+    broadcastAllConnections();
+  }
+
+  void _handleData(Map<String, dynamic> json) {
+    final id = json["id"];
+
+    if(id == "client_update") {
+      print("client_update received");
+      final clientUpdateRequest = ClientUpdateRequest.fromJson(json);
+      if(clientUpdateRequest.ip == myIpAddress) {
+        _clientConnections.firstWhere((clientConnection) => clientConnection.ip == "127.0.0.1").name = clientUpdateRequest.name;
+      } else {
+        // client to update is not localhost. Find the client with the matching ip and port
+        final clientToUpdate = _clientConnections.firstWhere((clientConnection) => clientConnection.ip == clientUpdateRequest.ip && clientConnection.port == clientUpdateRequest.port);
+        clientToUpdate.name = clientUpdateRequest.name;
+      }
+      broadcastAllConnections();
+    }
+  }
+
   /// Broadcast an AllConnectionsResponse to all the clients.
   void broadcastAllConnections() {
     final allConnectionsResponse = AllConnectionsResponse(
-      connections: _sockets.map(
-        (socket) => ClientConnection(
-          name: _ipAddress!,
-          ip: socket.remoteAddress.address,
-          port: socket.remotePort.toString(),
-        )
-      ).toList(),
+      connections: _clientConnections,
     );
+
+    print(allConnectionsResponse.toJson().toString());
 
     _sockets.forEach((socket) {
       socket.write(allConnectionsResponse.toJson());
     });
   }
 
-  // on messages reveived from the client
-  Stream<dynamic> get stream => _server!.asBroadcastStream().map(
-    (event) {
-      print(event.toString());
-      return event.toString();
-    }
-  );
+  String _convertToJsonStringQuotes({required String raw}) {
+    String jsonString = raw;
+
+    /// add quotes to json string
+    jsonString = jsonString.replaceAll('{', '{"');
+    jsonString = jsonString.replaceAll(': ', '": "');
+    jsonString = jsonString.replaceAll(', ', '", "');
+    jsonString = jsonString.replaceAll('}', '"}');
+
+    /// remove quotes on object json string
+    jsonString = jsonString.replaceAll('"{"', '{"');
+    jsonString = jsonString.replaceAll('"}"', '"}');
+
+    /// remove quotes on array json string
+    jsonString = jsonString.replaceAll('"[{', '[{');
+    jsonString = jsonString.replaceAll('}]"', '}]');
+
+    return jsonString;
+  }
 }
