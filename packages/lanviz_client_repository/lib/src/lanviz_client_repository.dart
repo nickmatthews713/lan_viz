@@ -29,7 +29,7 @@ class LanvizClientRepository {
   bool _isConnected;
 
   /// stream controller for the messages received from the server
-  final StreamController<Map<String, dynamic>> _allConnectionsStreamController = StreamController<Map<String, dynamic>>();
+  late final StreamController<Map<String, dynamic>> _allConnectionsStreamController;
 
   /// stream controller for the state of the client connection
   final StreamController<ClientConnectionStatus> _connectionStatusStreamController = StreamController<ClientConnectionStatus>();
@@ -43,6 +43,8 @@ class LanvizClientRepository {
   /// Connect to server
   Future<void> initializeClient({required String host, required int port}) async {
     try {
+      _allConnectionsStreamController = StreamController<Map<String, dynamic>>();
+
       _client = await Socket.connect(host, port);
 
       final networkInfo = NetworkInfo();
