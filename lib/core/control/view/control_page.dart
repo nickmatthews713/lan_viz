@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lan_viz/app/bloc/lanviz_client/lanviz_client_bloc.dart';
 import 'package:lan_viz/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:lanviz_server_repository/lanviz_server_repository.dart';
 import 'package:lanviz_client_repository/lanviz_client_repository.dart';
+import 'package:lan_viz/core/control/bloc/lanviz_connections/lanviz_connections_cubit.dart';
+import 'package:lan_viz/core/server_setup/server_setup.dart';
 
 import 'control_view.dart';
 
@@ -36,7 +39,17 @@ class ControlPage extends StatelessWidget {
           )
         ],
       ),
-      body: const ControlView(),
+      body: BlocListener<LanvizClientBloc, LanvizClientState>(
+        listener: (context, state) {
+          if(state is LanvizClientDisconnected) {
+            Navigator.of(context).pushNamedAndRemoveUntil(ServerSetupPage.name, (route) => false);
+          }
+        },
+        child: BlocProvider(
+          create: (context) => LanvizConnectionsCubit(lanvizClientRepository: lanvizClient),
+          child: const ControlView(),
+        ),
+      ),
     );
   }
 }

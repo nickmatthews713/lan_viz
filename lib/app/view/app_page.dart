@@ -13,6 +13,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider<LanvizServerRepository>(create: (context) => LanvizServerRepository()),
@@ -20,10 +21,12 @@ class App extends StatelessWidget {
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider<LanvizServerBloc>(create: (context) => LanvizServerBloc(context.read<LanvizServerRepository>())),
           BlocProvider<LanvizClientBloc>(create: (context) => LanvizClientBloc(context.read<LanvizClientRepository>())),
         ],
-        child: const AppView(),
+        child: BlocProvider(
+          create: (context) => LanvizServerBloc(context.read<LanvizServerRepository>(), lanvizClientBloc: context.read<LanvizClientBloc>()),
+          child: const AppView(),
+        ),
       ),
     );
   }

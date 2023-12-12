@@ -19,21 +19,40 @@ class HostServerModal extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 400),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _Header(),
-                Divider(color: neutral[1]),
-                const SizedBox(height: 8.0),
-                const _ServerNameInput(),
-                const SizedBox(height: 8.0),
-                const _ActionButtons(),
-              ],
+            child: BlocBuilder<LanvizServerBloc, LanvizServerState>(
+              builder: (context, state) {
+                if(state is LanvizServerStarting) {
+                  return const _LoadingInfo(title: "Starting and Connecting...");
+                } else if(state is LanvizServerRunning) {
+                  return const _LoadingInfo(title: "Server Running!");
+                } else {
+                  return const _HostServerForm();
+                }
+              }
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _HostServerForm extends StatelessWidget {
+  const _HostServerForm();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const _Header(),
+        Divider(color: neutral[1]),
+        const SizedBox(height: 8.0),
+        const _ServerNameInput(),
+        const SizedBox(height: 8.0),
+        const _ActionButtons(),
+      ],
     );
   }
 }
@@ -96,13 +115,40 @@ class _ActionButtons extends StatelessWidget {
               onPressed: state.serverName.invalid || state.serverName.pure
                 ? null
                 : () {
-                Navigator.of(context).pop();
                 context.read<LanvizServerBloc>().add(HostServerClicked());
             },
               child: const Text("Host Server"),
             );
           }
         ),
+      ],
+    );
+  }
+}
+
+class _LoadingInfo extends StatelessWidget {
+  const _LoadingInfo({
+    required this.title,
+  });
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    // column of title a loading indicator
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20,
+            color: secondary[2],
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        const CircularProgressIndicator(),
       ],
     );
   }

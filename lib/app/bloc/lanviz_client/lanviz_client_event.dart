@@ -19,3 +19,5 @@ class JoinServerClicked extends LanvizClientEvent {
   @override
   List<Object> get props => [host, port];
 }
+
+class ServerDisconnected extends LanvizClientEvent {}

@@ -6,4 +6,6 @@ environment:
   sdk: '>=3.0.6 <4.0.0'
 
 dependencies:
+  lanviz_network:
+    path: ../lanviz_network
   network_info_plus: ^4.1.0

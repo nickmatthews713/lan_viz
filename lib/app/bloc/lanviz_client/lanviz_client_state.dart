@@ -7,14 +7,14 @@ abstract class LanvizClientState extends Equatable {
   List<Object> get props => [];
 }
 
-class LanvizClientNotStarted extends LanvizClientState {}
+class LanvizClientDisconnected extends LanvizClientState {}
 
-class LanvizClientStarting extends LanvizClientState {}
+class LanvizClientConnecting extends LanvizClientState {}
 
-class LanvizClientRunning extends LanvizClientState {}
+class LanvizClientConnected extends LanvizClientState {}
 
-class LanvizClientError extends LanvizClientState {
-  const LanvizClientError({required this.message});
+class LanvizClientConnectionError extends LanvizClientState {
+  const LanvizClientConnectionError({required this.message});
 
   final String message;
 
