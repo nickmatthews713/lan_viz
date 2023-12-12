@@ -10,7 +10,7 @@ part 'lanviz_connections_state.dart';
 class LanvizConnectionsCubit extends Cubit<LanvizConnectionsState> {
   LanvizConnectionsCubit({required this.lanvizClientRepository})
       : super(const LanvizConnectionsState()) {
-    _allConnectionsStreamSubscription = lanvizClientRepository.allConnectionsStream.listen((json) {
+    _allConnectionsStreamSubscription = lanvizClientRepository.allConnections.stream.listen((json) {
       handleMessage(json);
     });
   }
@@ -32,6 +32,7 @@ class LanvizConnectionsCubit extends Cubit<LanvizConnectionsState> {
   @override
   Future<void> close() {
     _allConnectionsStreamSubscription.cancel();
+    lanvizClientRepository.allConnections.close();
     return super.close();
   }
 }

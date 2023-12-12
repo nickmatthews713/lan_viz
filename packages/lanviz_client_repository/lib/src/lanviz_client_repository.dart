@@ -37,8 +37,8 @@ class LanvizClientRepository {
   // getters and setters
   bool get isConnected => _isConnected;
   String? get ipAddress => _ipAddress;
-  Stream<Map<String, dynamic>> get allConnectionsStream => _allConnectionsStreamController.stream;
-  Stream<ClientConnectionStatus> get connectionStatusStream => _connectionStatusStreamController.stream;
+  StreamController<Map<String, dynamic>> get allConnections => _allConnectionsStreamController;
+  StreamController<ClientConnectionStatus> get connectionStatus => _connectionStatusStreamController;
 
   /// Connect to server
   Future<void> initializeClient({required String host, required int port}) async {
@@ -117,6 +117,5 @@ class LanvizClientRepository {
     _isConnected = false;
     _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
     _client!.destroy();
-    _allConnectionsStreamController.close();
   }
 }
