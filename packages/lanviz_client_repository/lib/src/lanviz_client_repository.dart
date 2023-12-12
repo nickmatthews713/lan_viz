@@ -117,6 +117,5 @@ class LanvizClientRepository {
     _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
     _client!.destroy();
     _allConnectionsStreamController.close();
-    _connectionStatusStreamController.close();
   }
 }
