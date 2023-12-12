@@ -29,7 +29,7 @@ class LanvizClientRepository {
   bool _isConnected;
 
   /// stream controller for the messages received from the server
-  late final StreamController<Map<String, dynamic>> _allConnectionsStreamController;
+  late StreamController<Map<String, dynamic>> _allConnectionsStreamController;
 
   /// stream controller for the state of the client connection
   final StreamController<ClientConnectionStatus> _connectionStatusStreamController = StreamController<ClientConnectionStatus>();
