@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:lan_viz/core/control/bloc/lanviz_connections/lanviz_connections_cubit.dart';
 
+import 'widgets/user_tile/user_tile.dart';
+
 class NetworkList extends StatelessWidget {
   const NetworkList({super.key});
 
@@ -13,9 +15,9 @@ class NetworkList extends StatelessWidget {
         return ListView.builder(
           itemCount: state.connections.length,
           itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(state.connections[index].name),
-              subtitle: Text(state.connections[index].ip),
+            return UserTile(
+              name: state.connections[index].name,
+              ip: state.connections[index].ip,
             );
           },
         );

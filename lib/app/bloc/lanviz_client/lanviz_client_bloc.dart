@@ -13,7 +13,7 @@ class LanvizClientBloc extends Bloc<LanvizClientEvent, LanvizClientState> {
     LanvizClientRepository? lanvizClientRepository,
   ) : _lanvizClientRepository = lanvizClientRepository ?? LanvizClientRepository(),
   super(LanvizClientDisconnected()) {
-    _connectionStatusStreamSubscription = _lanvizClientRepository.connectionStream.listen((status) {
+    _connectionStatusStreamSubscription = _lanvizClientRepository.connectionStatusStream.listen((status) {
       if(status == ClientConnectionStatus.disconnected) {
         add(ServerDisconnected());
       }
@@ -40,5 +40,11 @@ class LanvizClientBloc extends Bloc<LanvizClientEvent, LanvizClientState> {
 
   Future<void> _onServerDisconnected(ServerDisconnected event, Emitter<LanvizClientState> emit) async {
     emit(LanvizClientDisconnected());
+  }
+
+  @override
+  Future<void> close() {
+    _connectionStatusStreamSubscription.cancel();
+    return super.close();
   }
 }

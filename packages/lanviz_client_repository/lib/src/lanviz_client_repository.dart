@@ -29,16 +29,16 @@ class LanvizClientRepository {
   bool _isConnected;
 
   /// stream controller for the messages received from the server
-  final StreamController<Map<String, dynamic>> _messageStreamController = StreamController<Map<String, dynamic>>();
+  final StreamController<Map<String, dynamic>> _allConnectionsStreamController = StreamController<Map<String, dynamic>>();
 
   /// stream controller for the state of the client connection
-  final StreamController<ClientConnectionStatus> _connectionStreamController = StreamController<ClientConnectionStatus>();
+  final StreamController<ClientConnectionStatus> _connectionStatusStreamController = StreamController<ClientConnectionStatus>();
 
   // getters and setters
   bool get isConnected => _isConnected;
   String? get ipAddress => _ipAddress;
-  Stream<Map<String, dynamic>> get messageStream => _messageStreamController.stream;
-  Stream<ClientConnectionStatus> get connectionStream => _connectionStreamController.stream;
+  Stream<Map<String, dynamic>> get allConnectionsStream => _allConnectionsStreamController.stream;
+  Stream<ClientConnectionStatus> get connectionStatusStream => _connectionStatusStreamController.stream;
 
   /// Connect to server
   Future<void> initializeClient({required String host, required int port}) async {
@@ -52,16 +52,15 @@ class LanvizClientRepository {
 
       _client!.listen(
         (Uint8List data) {
-          print(String.fromCharCodes(data));
           final jsonRaw = String.fromCharCodes(data);
           final jsonString = _convertToJsonStringQuotes(raw: jsonRaw);
           Map<String, dynamic> jsonMap = json.decode(jsonString);
-          _messageStreamController.add(jsonMap);
+          handleData(jsonMap);
         },
 
         onError: (error) {
           print(error);
-          _connectionStreamController.add(ClientConnectionStatus.disconnected);
+          _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
           _client!.destroy();
           _isConnected = false;
           throw LanvizClientException();
@@ -69,18 +68,26 @@ class LanvizClientRepository {
 
         onDone: () {
           print("Client disconnected");
-          _connectionStreamController.add(ClientConnectionStatus.disconnected);
+          _connectionStatusStreamController.add(ClientConnectionStatus.disconnected);
           _client!.destroy();
           _isConnected = false;
         },
       );
 
-      _connectionStreamController.add(ClientConnectionStatus.connected);
+      _connectionStatusStreamController.add(ClientConnectionStatus.connected);
       _isConnected = true;
     } catch (error) {
       print(error);
       _isConnected = false;
       throw LanvizClientException();
+    }
+  }
+
+  void handleData(Map<String, dynamic> json) {
+    final id = json["id"];
+
+    if(id == "all_connections") {
+      _allConnectionsStreamController.add(json);
     }
   }
 
