@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lan_viz/app/app.dart';
 import 'package:lan_viz/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:formz/formz.dart';
 
 import 'package:lan_viz/shared/standard_input_field/standard_input_field.dart';
 
@@ -49,7 +50,7 @@ class _HostServerForm extends StatelessWidget {
         const _Header(),
         Divider(color: neutral[1]),
         const SizedBox(height: 8.0),
-        const _ServerNameInput(),
+        const _NameInputs(),
         const SizedBox(height: 8.0),
         const _ActionButtons(),
       ],
@@ -76,21 +77,43 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _ServerNameInput extends StatelessWidget {
-  const _ServerNameInput();
+class _NameInputs extends StatelessWidget {
+  const _NameInputs();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<HostServerModalCubit, HostServerModalState>(
-      buildWhen: (previous, current) => previous.serverName != current.serverName,
-      builder: (context, state) {
-        return StandardInputField(
-          placeholder: "Server Name",
-          onChanged: (value) => context.read<HostServerModalCubit>().serverNameChanged(value),
-          isInputValid: !state.serverName.invalid,
-          fontSize: 20,
-        );
-      },
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: BlocBuilder<HostServerModalCubit, HostServerModalState>(
+            buildWhen: (previous, current) => previous.firstName != current.firstName,
+            builder: (context, state) {
+              return StandardInputField(
+                placeholder: "firstname",
+                onChanged: (value) => context.read<HostServerModalCubit>().firstNameChanged(value),
+                isInputValid: !state.firstName.invalid,
+                fontSize: 20,
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 8.0),
+        Expanded(
+          child: BlocBuilder<HostServerModalCubit, HostServerModalState>(
+            buildWhen: (previous, current) => previous.lastName != current.lastName,
+            builder: (context, state) {
+              return StandardInputField(
+                placeholder: "lastname",
+                onChanged: (value) => context.read<HostServerModalCubit>().lastNameChanged(value),
+                isInputValid: !state.lastName.invalid,
+                fontSize: 20,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -108,14 +131,17 @@ class _ActionButtons extends StatelessWidget {
           child: const Text("Cancel"),
         ),
         BlocBuilder<HostServerModalCubit, HostServerModalState>(
-          buildWhen: (previous, current) => previous.status != current.status,
           builder: (context, state) {
             // if server name is pure or invalid, disable the button
             return ElevatedButton(
-              onPressed: state.serverName.invalid || state.serverName.pure
+              onPressed: state.status.isInvalid
                 ? null
                 : () {
-                context.read<LanvizServerBloc>().add(HostServerClicked());
+
+                context.read<LanvizServerBloc>().add(HostServerClicked(
+                  firstName: state.firstName.value,
+                  lastName: state.lastName.value,
+                ));
             },
               child: const Text("Host Server"),
             );

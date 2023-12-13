@@ -37,6 +37,7 @@ dependencies:
   equatable: ^2.0.5
   responsive_framework: ^1.1.0
   cupertino_icons: ^1.0.2
+  formz: ^0.4.0
 
 dev_dependencies:
   flutter_test:

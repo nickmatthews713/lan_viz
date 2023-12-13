@@ -9,7 +9,7 @@ class JoinServerModalCubit extends Cubit<JoinServerModalState> {
   JoinServerModalCubit() : super(const JoinServerModalState());
 
   void serverNameChanged(String serverName) {
-    final serverNameInput = serverName == '' ? const ServerName.pure() : ServerName.dirty(serverName);
+    final serverNameInput = serverName == '' ? const IpAddress.pure() : IpAddress.dirty(serverName);
     emit(
       state.copyWith(
         serverName: serverNameInput,

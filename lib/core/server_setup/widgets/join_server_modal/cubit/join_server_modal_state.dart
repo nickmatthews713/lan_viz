@@ -2,18 +2,18 @@ part of 'join_server_modal_cubit.dart';
 
 class JoinServerModalState extends Equatable {
   const JoinServerModalState({
-    this.serverName = const ServerName.pure(),
+    this.serverName = const IpAddress.pure(),
     this.status = FormzStatus.pure,
   });
 
-  final ServerName serverName;
+  final IpAddress serverName;
   final FormzStatus status;
 
   @override
   List<Object> get props => [serverName, status];
 
   JoinServerModalState copyWith({
-    ServerName? serverName,
+    IpAddress? serverName,
     FormzStatus? status,
   }) {
     return JoinServerModalState(
